@@ -1,6 +1,6 @@
 # Adaptive Fraud Response Engine
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Coming_Soon-blue?style=for-the-badge)](#) *(Replace this link with your live URL once hosted)*
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Live_Now-success?style=for-the-badge)](https://frauddetect-front.onrender.com)
 
 ## The Business Problem
 Modern fraud detection systems often optimize solely for catching bad actors, which inadvertently creates a massive volume of "false positives." This binary block/allow approach overwhelms human analysts with mundane alerts, introduces significant friction for legitimate users (card declines, locked accounts), and ultimately costs financial institutions millions in lost revenue and customer dissatisfaction. 

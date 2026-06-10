@@ -2,6 +2,7 @@ import asyncio
 import pickle
 import os
 import time
+import random
 from typing import List, Optional
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
@@ -29,7 +30,14 @@ async def lifespan(app: FastAPI):
             model = pickle.load(f)
     else:
         print("Warning: model.pkl not found! Please run train_model.py first.")
+        
+    # Start the autonomous background simulator for the live demo!
+    simulator_task = asyncio.create_task(background_simulator())
+    
     yield
+    
+    # Cleanup
+    simulator_task.cancel()
 
 app = FastAPI(title="Adaptive Fraud Response Engine", lifespan=lifespan)
 
@@ -139,3 +147,45 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+# ---------------------------------------------------------
+# AUTONOMOUS BACKGROUND SIMULATOR (FOR LIVE DEMO)
+# ---------------------------------------------------------
+
+PROFILES = [
+    {"user_id": "U1_AvgSpender", "avg_amount": 50, "known_device_prob": 0.95, "avg_distance": 2},
+    {"user_id": "U2_HighRoller", "avg_amount": 800, "known_device_prob": 0.90, "avg_distance": 10},
+    {"user_id": "U3_Traveler", "avg_amount": 200, "known_device_prob": 0.60, "avg_distance": 500},
+]
+
+async def background_simulator():
+    """Continuously generates transactions so the live demo never sits empty."""
+    while True:
+        profile = random.choice(PROFILES)
+        
+        # Inject fraud anomalies 10% of the time
+        if random.random() < 0.10:
+            amount = random.uniform(profile["avg_amount"] * 5, profile["avg_amount"] * 20)
+            distance = random.uniform(100, 1000)
+            device = 0 # unknown device
+        else:
+            amount = max(1.0, random.gauss(profile["avg_amount"], profile["avg_amount"] * 0.2))
+            distance = max(0.0, random.gauss(profile["avg_distance"], profile["avg_distance"] * 0.5))
+            device = 1 if random.random() < profile["known_device_prob"] else 0
+            
+        tx = Transaction(
+            user_id=profile["user_id"],
+            amount=round(amount, 2),
+            distance_from_home=round(distance, 2),
+            known_device=device
+        )
+        
+        # Process the transaction internally
+        try:
+            await score_transaction(tx)
+        except Exception as e:
+            print(f"Simulator error: {e}")
+            
+        # Wait before generating the next one
+        await asyncio.sleep(random.uniform(0.5, 2.0))
+
