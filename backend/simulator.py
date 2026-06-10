@@ -2,7 +2,7 @@ import time
 import random
 import requests
 
-API_URL = "http://127.0.0.1:8000/score_transaction"
+API_URL = "https://frauddetect-hi7z.onrender.com/score_transaction"
 
 PROFILES = [
     {"user_id": "U1_AvgSpender", "avg_amount": 50, "known_device_prob": 0.95, "avg_distance": 2},

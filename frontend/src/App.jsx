@@ -8,8 +8,8 @@ function App() {
   const ws = useRef(null);
 
   useEffect(() => {
-    // Connect to FastAPI WebSocket
-    ws.current = new WebSocket('ws://localhost:8000/ws/stream');
+    // Connect to the Live Render Backend WebSocket
+    ws.current = new WebSocket('wss://frauddetect-hi7z.onrender.com/ws/stream');
     
     ws.current.onopen = () => console.log("WebSocket connected.");
     
